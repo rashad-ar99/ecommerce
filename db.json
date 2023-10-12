@@ -1,7 +1,189 @@
 {
-	"posts": [
-		{ "id": 1, "title": "Post 1" },
-		{ "id": 2, "title": "Post 2" },
-		{ "id": 3, "title": "Post 3" }
+	"users": [],
+	"sessions": [],
+	"carts": [],
+	"orders": [],
+	"coupons": [],
+	"products": [
+		{
+			"id": "f47e9c19-8106-4d8f-9c79-efb9d4a5e0a1",
+			"name": "Laptop",
+			"actual_price": 1000,
+			"offer_price": 900,
+			"image_link": "/assets/images/football.png",
+			"description": "High-performance laptop with advanced features.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "e42f82f0-2a78-4f02-a7b7-92f2a7e23d03",
+			"name": "Smartphone",
+			"actual_price": 500,
+			"offer_price": 450,
+			"image_link": "/assets/images/tv.png",
+			"description": "Cutting-edge smartphone with a sleek design.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "c1e64682-6c87-456e-83b6-c0490369c6d7",
+			"name": "Headphones",
+			"actual_price": 80,
+			"offer_price": 60,
+			"image_link": "/assets/images/football.png",
+			"description": "Premium headphones for the best audio experience.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "95f5cfeb-54d3-4e22-b9ec-116d893a5932",
+			"name": "Camera",
+			"actual_price": 600,
+			"offer_price": 550,
+			"image_link": "/assets/images/tv.png",
+			"description": "Professional-grade camera for stunning photos.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "8a0a74d5-732b-4f1e-b070-1458be4a9b1b",
+			"name": "Tablet",
+			"actual_price": 300,
+			"offer_price": 270,
+			"image_link": "/assets/images/mouse.png",
+			"description": "Versatile tablet for work and entertainment.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "bfb7ac47-57bf-4c62-a7a4-106813a54021",
+			"name": "Smartwatch",
+			"actual_price": 150,
+			"offer_price": 130,
+			"image_link": "/assets/images/football.png",
+			"description": "Smartwatch with a stylish design and advanced features.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "ed01e348-6c4b-4db5-8819-5c542b515a61",
+			"name": "Television",
+			"actual_price": 800,
+			"offer_price": 750,
+			"image_link": "/assets/images/tv.png",
+			"description": "High-definition television for a cinematic experience.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "b3653e12-3a03-4a11-9ef9-0c41b73ff3f0",
+			"name": "Printer",
+			"actual_price": 120,
+			"offer_price": 100,
+			"image_link": "/assets/images/mouse.png",
+			"description": "Fast and reliable printer for all your printing needs.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "6b150767-c56f-4b0d-b77d-1b2cdd9732d6",
+			"name": "Refrigerator",
+			"actual_price": 400,
+			"offer_price": 350,
+			"image_link": "/assets/images/tv.png",
+			"description": "Energy-efficient refrigerator for keeping your food fresh.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "2414f4fc-0d25-4c48-8016-22d6aa74bb8d",
+			"name": "Vacuum Cleaner",
+			"actual_price": 70,
+			"offer_price": 60,
+			"image_link": "/assets/images/football.png",
+			"description": "Powerful vacuum cleaner for a clean and tidy home.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "63b58333-0527-4a89-a0c4-1c65621896e7",
+			"name": "Gaming Console",
+			"actual_price": 250,
+			"offer_price": 220,
+			"image_link": "/assets/images/tv.png",
+			"description": "Gaming console for immersive gaming experiences.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "84fc284a-d051-4c53-91d6-3e7b300c962f",
+			"name": "Coffee Maker",
+			"actual_price": 50,
+			"offer_price": 45,
+			"image_link": "/assets/images/mouse.png",
+			"description": "Coffee maker for brewing your favorite beverages.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "b08f51e2-2733-4d82-9520-f90ea5f5e6a4",
+			"name": "Bluetooth Speaker",
+			"actual_price": 40,
+			"offer_price": 35,
+			"image_link": "/assets/images/laptop.png",
+			"description": "Portable Bluetooth speaker with rich sound.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "9fbc2d70-1011-4c70-8bc7-63c83536e8c7",
+			"name": "Monitor",
+			"actual_price": 150,
+			"offer_price": 130,
+			"image_link": "/assets/images/mouse.png",
+			"description": "High-resolution monitor for clear visuals.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "27f6100f-20a5-4cb0-af98-9f8de8c23a0d",
+			"name": "Mouse",
+			"actual_price": 15,
+			"offer_price": 12,
+			"image_link": "/assets/images/football.png",
+			"description": "Ergonomic mouse for precise navigation.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "a1b3257f-c7a9-4f68-9ff6-9e2fba0f8b2e",
+			"name": "Keyboard",
+			"actual_price": 20,
+			"offer_price": 18,
+			"image_link": "/assets/images/mouse.png",
+			"description": "Responsive keyboard for typing comfort.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "b3018a33-e39d-4f3b-bc03-c33624a38f7e",
+			"name": "External Hard Drive",
+			"actual_price": 90,
+			"offer_price": 80,
+			"image_link": "/assets/images/laptop.png",
+			"description": "External hard drive for data storage and backup.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "0e140aeb-453d-482c-ae96-9c40d17e330f",
+			"name": "Wireless Router",
+			"actual_price": 30,
+			"offer_price": 25,
+			"image_link": "/assets/images/laptop.png",
+			"description": "Wireless router for high-speed internet connectivity.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "c67a0af9-6d96-4ab9-9e07-ef4d5c8efb2d",
+			"name": "Desk Chair",
+			"actual_price": 120,
+			"offer_price": 110,
+			"image_link": "/assets/images/football.png",
+			"description": "Comfortable desk chair for your workspace.",
+			"quantityOrdered": 0
+		},
+		{
+			"id": "cd88ca5b-35a3-4d3b-99dd-3c90d3784f50",
+			"name": "Desk Lamp",
+			"actual_price": 25,
+			"offer_price": 20,
+			"image_link": "/assets/images/football.png",
+			"description": "Desk lamp for better lighting in your room.",
+			"quantityOrdered": 0
+		}
 	]
 }
