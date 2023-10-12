@@ -68,26 +68,6 @@ yarn dev
 port=3001 npm run dev
 ```
 
-### Build:
-
-```bash
-npm run build
-# or
-pnpm build
-# or
-yarn build
-```
-
-### Start server:
-
-```bash
-npm run start
-# or
-pnpm start
-# or
-yarn start
-```
-
 ## JSON-Server
 
 To setup the json-server, run the command:
