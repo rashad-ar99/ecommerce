@@ -1,6 +1,6 @@
 # UniBlox Assignment
 
-E-commerce application using Next.js and Node.js.
+E-commerce application assignment using Next.js and Node.js.
 
 ## Getting Started
 
