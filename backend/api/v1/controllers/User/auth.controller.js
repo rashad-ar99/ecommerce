@@ -2,48 +2,31 @@ const createError = require("http-errors");
 const crypto = require("crypto");
 const axios = require("axios");
 const bcrypt = require("bcrypt");
-const { signAccessToken, signRefreshToken } = require("../../jwt/jwt_helper");
+const { signAccessToken, signRefreshToken, verifyRefreshToken } = require("../../jwt/jwt_helper");
 const auth_validation = require("../../validations/User/auth.validation");
-const { Users, UserSessions } = require("../../models");
-const { uuid } = require("uuidv4");
-
-async function generateEmailVerificationToken() {
-	return crypto.randomInt(0, 1000000).toString().padStart(6, "0");
-}
-
-async function generateEmailVerificationTokenExpiresAt() {
-	return new Date(new Date().getTime() + 60 * 60 * 1000);
-}
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
 	register: async (req, res, next) => {
 		try {
 			const JoiResult = await auth_validation.register.validateAsync(req.body);
+			const User = await axios.get(`${process.env.DB_HOST}/users?Email=${JoiResult.Email}`);
 
-			if (
-				await Users.findOne({
-					where: {
-						VendorUUID: res.locals.Vendor.UUID,
-						Email: JoiResult.Email,
-						DeletedAt: null,
-					},
-				})
-			)
-				throw createError.Conflict("Email already exists");
-
-			const EmailVerificationToken = await generateEmailVerificationToken();
-
-			const EmailVerificationTokenExpiresAt = await generateEmailVerificationTokenExpiresAt();
+			if (User.data.length > 0) throw createError.Conflict("Email already exists");
 
 			bcrypt.hash(JoiResult.Password, 10, async (err, hash) => {
-				await Users.create({
-					Active: true,
+				const newUser = await axios.post(`${process.env.DB_HOST}/users`, {
+					id: uuidv4(),
 					Email: JoiResult.Email,
-					EmailVerificationToken,
-					EmailVerificationTokenExpiresAt,
-					EmailVerificationTokenAttemptsRemaining: 10,
 					Password: hash,
-					VendorUUID: res.locals.Vendor.UUID,
+					Admin: false,
+				});
+
+				await axios.post(`${process.env.DB_HOST}/carts`, {
+					id: uuidv4(),
+					UserID: newUser.data.id,
+					productItems: [],
+					quantity: 0,
 				});
 			});
 
@@ -51,24 +34,6 @@ module.exports = {
 				status: "success",
 				data: null,
 			});
-
-			if (res.locals.Vendor.CallbackURL_User_Auth_Register) {
-				await axios
-					.post(
-						res.locals.Vendor.CallbackURL_User_Auth_Register,
-						{
-							Email: JoiResult.Email,
-							EmailVerificationToken,
-							EmailVerificationTokenExpiresAt,
-							CallbackSentAt: new Date(),
-							VendorUUID: res.locals.Vendor.UUID,
-						},
-						{ timeout: 15000 }
-					)
-					.catch((error) => {
-						throw createError.BadGateway(error.message);
-					});
-			}
 		} catch (error) {
 			next(error);
 		}
@@ -77,55 +42,66 @@ module.exports = {
 		try {
 			const JoiResult = await auth_validation.login.validateAsync(req.body);
 
-			const User = await Users.findOne({
-				where: {
-					Email: JoiResult.Email,
-					DeletedAt: null,
-					VendorUUID: res.locals.Vendor.UUID,
-				},
-			});
-			if (!User) throw createError.NotFound("Email not found");
-			if (!(await bcrypt.compare(JoiResult.Password, User.Password))) throw createError.Unauthorized("Password incorrect");
-			if (!User.Active) throw createError.Unauthorized("Account deactivated");
-			if (!User.EmailVerified) throw createError.Unauthorized("Email not verified");
+			const user = await axios.get(`${process.env.DB_HOST}/users?Email=${JoiResult.Email}`);
+			const UserData = user.data[0];
 
-			const { token: JWTRefreshToken, expiry: JWTRefreshTokenExpiresAt } = await signRefreshToken(User.UUID);
+			if (!UserData) throw createError.NotFound("Email not found");
+			if (!(await bcrypt.compare(JoiResult.Password, UserData.Password))) throw createError.Unauthorized("Password incorrect");
 
-			const UserSession = await UserSessions.create({
+			const { token: JWTRefreshToken, expiry: JWTRefreshTokenExpiresAt } = await signRefreshToken(UserData.id);
+
+			await axios.post(`${process.env.DB_HOST}/sessions`, {
+				id: uuidv4(),
 				JWTRefreshToken,
 				JWTRefreshTokenExpiresAt,
-				UserUUID: User.UUID,
+				UserID: UserData.id,
 				IP: req.ip,
 				UserAgent: req.get("user-agent"),
 			});
 
-			const { token: JWTAccessToken, expiry: JWTAccessTokenExpiresAt } = await signAccessToken(User.UUID);
+			const { token: JWTAccessToken, expiry: JWTAccessTokenExpiresAt } = await signAccessToken(UserData.id);
 
 			res.json({
 				status: "success",
 				data: {
-					UserSessionUUID: UserSession.UUID,
 					JWTAccessToken,
 					JWTAccessTokenExpiresAt,
 					JWTRefreshToken,
 					JWTRefreshTokenExpiresAt,
 					User: {
-						UUID: User.UUID,
-						FirstName: User.FirstName,
-						LastName: User.LastName,
-						Email: User.Email,
-						EmailVerified: User.EmailVerified,
-						Phone: User.Phone,
-						PhoneVerified: User.PhoneVerified,
-						PasswordUpdatedAt: User.PasswordUpdatedAt,
-						MFAEnabled: User.MFAEnabled,
-						MFAMethod: User.MFAMethod,
-						PIN: User.PIN,
-						Address: User.Address,
-						ImageURL: User.ImageURL,
-						CreatedAt: User.CreatedAt,
-						UpdatedAt: User.UpdatedAt,
+						id: UserData.id,
+						Email: UserData.Email,
+						Admin: UserData.Admin,
 					},
+				},
+			});
+		} catch (error) {
+			next(error);
+		}
+	},
+	refreshAccessToken: async (req, res, next) => {
+		try {
+			const JoiResult = await auth_validation.refreshToken.validateAsync(req.body);
+
+			const session = await axios.get(`${process.env.DB_HOST}/sessions?JWTRefreshToken=${JoiResult.JWTRefreshToken}`);
+			const UserSession = session.data[0];
+
+			if (!UserSession) throw createError.NotFound("Session not found");
+			if (UserSession.JWTRefreshTokenExpiresAt < new Date()) throw createError.Forbidden("Session expired");
+
+			const UserID = await verifyRefreshToken(JoiResult.JWTRefreshToken);
+
+			if (UserID !== UserSession.UserID) throw createError.Forbidden("Token incorrect");
+
+			const { token: JWTAccessToken, expiry: JWTAccessTokenExpiresAt } = await signAccessToken(UserID);
+
+			res.json({
+				status: "success",
+				data: {
+					JWTAccessToken,
+					JWTAccessTokenExpiresAt,
+					JWTRefreshToken: UserSession.JWTRefreshToken,
+					JWTRefreshTokenExpiresAt: UserSession.JWTRefreshTokenExpiresAt,
 				},
 			});
 		} catch (error) {
@@ -136,16 +112,12 @@ module.exports = {
 		try {
 			const JoiResult = await auth_validation.refreshToken.validateAsync(req.body);
 
-			const UserSession = await UserSessions.findOne({ where: { JWTRefreshToken: JoiResult.JWTRefreshToken } });
-			if (!UserSession) throw createError.NotFound("Session not found");
-			if (UserSession.DeletedAt) throw createError.Forbidden("Session already deleted");
+			const session = await axios.get(`${process.env.DB_HOST}/sessions?JWTRefreshToken=${JoiResult.JWTRefreshToken}`);
+			const UserSession = session.data[0];
 
-			await UserSessions.destroy({
-				where: {
-					JWTRefreshToken: JoiResult.JWTRefreshToken,
-					DeletedAt: null,
-				},
-			});
+			if (!UserSession) throw createError.NotFound("Session not found");
+
+			await axios.delete(`${process.env.DB_HOST}/sessions/${UserSession.id}`);
 
 			res.json({
 				status: "success",
