@@ -8,6 +8,8 @@ module.exports = {
 
 			const user = await axios.get(`${process.env.DB_HOST}/users/${req.payload.aud}`);
 
+			if (!user.data.Admin) throw createError.Unauthorized("User does not have admin privileges.");
+
 			res.locals.User = { id: user.data.id, Email: user.data.Email };
 
 			if (!res.locals.User) throw createError.Unauthorized("User not found or unavailable");
